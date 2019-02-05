@@ -23,7 +23,8 @@ Further details can be found in the [wiki](https://github.com/jobisoft/TbSync/wi
 
 * [Localization content best practices](https://developer.mozilla.org/en-US/docs/Mozilla/Localization/Localization_content_best_practices)
 * [Summary table of quotation marks per language](https://en.wikipedia.org/wiki/Quotation_mark#Summary_table)
-* [Transvision](https://transvision.mozfr.org/) provides valid locale codes (in the “Source Locale” and “Target Locale” drop-downs)
+* [Transvision](https://transvision.mozfr.org/) provides translations for various languages
+* by Thunderbird supported [locale codes](https://searchfox.org/comm-central/source/mail/locales/all-locales)
 
 If you encounter a misspelled translation key, do not correct it but report it to me. The translation keys are only used as variables in the code and are not visible. But changing a translation key requires all other translations and all references to that key in the code to be changed as well. Since translation keys are sometimes build up by string concatenation, it is not as easy as doing a global find and replace.
 
@@ -42,6 +43,9 @@ Later I want to support the [EWS community](https://github.com/ExchangeCalendar/
 After that, I would like to create or help others to create a google provider for TbSync. We will see how that goes, nothing is planed yet.
 
 ## Icon sources and attributions
+
+#### WTFPL
+* [spinner.gif] by [Yannick Croissant](http://www.ajaxload.info/)
 
 #### CC0-1.0
 * [add16.png] by [Jean Victor Balin](https://openclipart.org/detail/16950/add)

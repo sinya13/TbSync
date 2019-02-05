@@ -74,6 +74,9 @@ var tbSync = {
     // GLOBAL INIT
     init: Task.async (function* (window)  { 
 
+        //clear debug log on start
+        tbSync.initFile("debug.log");
+
         tbSync.window = window;
         tbSync.addon = yield tbSync.getAddonByID("tbsync@jobisoft.de");
         tbSync.dump("TbSync init","Start (" + tbSync.addon.version.toString() + ")");
@@ -253,7 +256,7 @@ var tbSync = {
         }
     },
 
-    openErrorLog: function (accountID, folderID) {
+    openErrorLog: function (accountID = null, folderID = null) {
         tbSync.prefWindowObj.open("chrome://tbsync/content/manager/errorlog/errorlog.xul", "TbSyncErrorLog", "centerscreen,chrome,resizable");
     },
 
@@ -776,6 +779,15 @@ var tbSync = {
         return (tabmail !== null);
     },
 
+    openTranslatedLink: function (url) {
+        let googleCode = tbSync.getLocalizedMessage("google.translate.code");
+        if (googleCode != "en" && googleCode != "google.translate.code") {
+            tbSync.openLink("https://translate.google.com/translate?hl=en&sl=en&tl="+tbSync.getLocalizedMessage("google.translate.code")+"&u="+url);
+        } else {
+            tbSync.openLink(url);
+        }
+    },
+
     openLink: function (url) {
         let ioservice = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
         let uriToOpen = ioservice.newURI(url, null, null);
@@ -960,6 +972,7 @@ var tbSync = {
         }
     },
 
+    //from syncdata this uses account and folderID
     errorlog: function (type, syncdata, message, details = null) {
         let entry = {
             timestamp: Date.now(),
@@ -968,24 +981,29 @@ var tbSync = {
             link: null, 
             details: details
         };
-
-        let localized = "";
-        let link = "";
-        if (syncdata) {
-            entry.provider = syncdata.provider;
+    
+        if (syncdata && syncdata.account) {
             entry.account = syncdata.account;
+            entry.provider = tbSync.db.getAccountSetting(syncdata.account, "provider");
             entry.accountname = tbSync.db.getAccountSetting(syncdata.account, "accountname");
             entry.foldername = (syncdata.folderID) ? tbSync.db.getFolderSetting(syncdata.account, syncdata.folderID, "name") : "";
+        } else {
+            if (syncdata.provider) entry.provider = syncdata.provider
+            if (syncdata.accountname) entry.accountname = syncdata.accountname
+            if (syncdata.foldername) entry.foldername = syncdata.foldername
+        }
 
-            //try to get localized string from message from provider
-            localized = tbSync.getLocalizedMessage("status." + message, syncdata.provider);
-            link = tbSync.getLocalizedMessage("helplink." + message, syncdata.provider);
+        let localized = "";
+        let link = "";        
+        if (entry.provider) {
+            localized = tbSync.getLocalizedMessage("status." + message, entry.provider);
+            link = tbSync.getLocalizedMessage("helplink." + message, entry.provider);
         } else {
             //try to get localized string from message from tbSync
             localized = tbSync.getLocalizedMessage("status." + message);
             link = tbSync.getLocalizedMessage("helplink." + message);
         }
-        
+    
         //can we provide a localized version of the error msg?
         if (localized != "status."+message) {
             entry.message = localized;
@@ -1786,7 +1804,3 @@ var tbSync = {
     }
 
 };
-
-
-//clear debug log on start
-tbSync.initFile("debug.log");
